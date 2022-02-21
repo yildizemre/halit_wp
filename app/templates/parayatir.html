@@ -1,0 +1,153 @@
+{%extends "menu.html"%}
+
+{%block header%}
+Para Yatırma İşlemleri
+
+{%endblock%}
+
+{%block body%}
+
+
+{% from "includes/formhelper.html" import render_field %}
+
+<section class="section is-main-section">
+  <div class="card has-table">
+    
+      <p class="card-header-title">
+        <span class="icon"><i class="mdi mdi-ballot"></i></span>
+        Para Yatırma İşlemleri  {{toplam_kayit}}
+      </p>
+
+      <img src="/static/img/concat.jpg" alt="IMG">
+    
+      <center><p class="card-header-title">
+        
+        <button class="button is-primary" type="button" onclick="copyEvent('copy')">Kopyala</button>
+
+       </p></center>
+       <script>
+        function copyEvent(id)
+        {
+            var str = document.getElementById(id);
+            window.getSelection().selectAllChildren(str);
+            document.execCommand("Copy")
+        }
+    </script>
+      <center><p id="copy" class="card-header-title">
+        
+        TRQNMFH76SEYfbAA8F2q5XAZUUSrkXYtUK
+        
+       </p></center>
+
+      
+      </br>
+    </br>
+
+    <form method=post action="/parayatir" name="form" enctype = "multipart/form-data" onsubmit="return validateForm()" >
+      <div class="card has-table">
+    
+        <p class="card-header-title">
+          <span class="icon"><i class="mdi mdi-ballot"></i></span>
+           Resim Ekleme İşlemleri      </p>
+       
+           <div class="field is-horizontal">
+            <div class="field-label is-normal">
+              <label class="label">TX Hash kodunuzu  giriniz.</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input type="text" name="hash" autocomplete="current-password" class="input">
+                </div>
+                <p class="help"></p></div>
+            </div>
+         
+         <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Dekont Resmi.</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                  <input class="input"type = "file" name = "file_on" />
+              </div>
+              <p class="help">Resim Ekle</p></div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          
+          
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal"></div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <button name="button1" type="submit" value="goruntule" class="button is-primary">
+                  EKLE
+                </button>
+              </br>
+            </br>
+              </div>
+            </div>
+          </div>
+        </div>
+       </div>
+  
+    </form>
+  
+
+    <p><font face="tahoma" size="5" color="maroon">
+      <b>Yatırdığınız Paranın Makbuzunu Resim Ekle Sayfasından Yükleyiniz.</b></font></p>
+    </br>
+  </br>
+      
+
+  
+    
+  
+      <center><p class="card-header-title">
+        
+       Soguk cüzdan hesabından &nbsp;
+       <font face="tahoma" size="4  " color="maroon"> 
+       <b> TRQNMFH76SEYfbAA8F2q5XAZUUSrkXYtUK </b></font> &nbsp;
+       numaralı cüzdan hesabına ücretsiz para gönderebilirsin.
+      
+       
+      </p></center>
+      <center><p class="card-header-title">
+        <font face="tahoma" size="4  " color="maroon"> &nbsp;
+        TRX  (TRC20) </font>&nbsp;
+        ağını kullanarak <font face="tahoma" size="4  " color="maroon"> &nbsp;
+          USDT TetherUS </font>&nbsp;
+          olarak ödemeyi gerçekleştirebilirsiniz.
+       
+        
+       </p></center>
+
+
+     
+      <center><p class="card-header-title">
+      
+        Yükseltmek istediğiniz yazılım paketi için iletişime geçebilirsiniz.
+   
+        
+       </p></center>
+    </p>
+    
+    
+    </p>
+    
+    </p>
+    <center><p class="card-header-title">
+      
+     Para transferinde sorun yaşanırsa 7/24 destek ekibimize ulaşabilirsin.
+
+     
+    </p></center>
+     </div>
+     
+</section>
+
+
+{%endblock%}
