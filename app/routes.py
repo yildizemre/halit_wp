@@ -37,12 +37,25 @@ try:
         password="aZ5xjXf133",
         database="hypegena_chain"
     )
-    
-    mycursor2 = mydb.cursor(buffered=True)
-    mycursor3 = mydb.cursor(buffered=True)
+   
 except Exception as e:
     print(e)
 
+
+def conne():
+    try:
+        mydb = mysql.connector.connect(
+            host="hypegenai.com",
+            user="hypegena",
+            password="aZ5xjXf133",
+            database="hypegena_chain"
+        )
+    
+        return mydb
+    except Exception as e:
+        print(e)
+
+    
 with app.app_context():
     # within this block, current_app points to app.
     print(current_app.name)
@@ -61,19 +74,31 @@ app.add_url_rule(
 
 
 def eslesme():
-    sol_ayak_toplam_para=0
-    sag_ayak_toplam_para=0
-    mycursor = mydb.cursor(buffered=True, dictionary=True)
-    mycursor2 = mydb.cursor(buffered=True, dictionary=True)
-    sol_ayak=mycursor.execute("SELECT * FROM users2 WHERE atanan_ref LIKE '"+str(session['atanan_ref'])+'1'+"%"+ "'")
-    sag_ayak=mycursor2.execute("SELECT * FROM users2 WHERE atanan_ref LIKE '"+str(session['atanan_ref'])+'2'+"%"+ "'")
-    mycursor.execute(sol_ayak)
-    mycursor2.execute(sag_ayak)
-   
+    mydb=conne()
+    try:
+            
+        sol_ayak_toplam_para=0
+        sag_ayak_toplam_para=0
+        mycursor = mydb.cursor(buffered=True, dictionary=True)
+        mycursor2 = mydb.cursor(buffered=True, dictionary=True)
+        mycursor.execute("SELECT * FROM users2 WHERE atanan_ref LIKE '"+str(session['atanan_ref'])+'1'+"%"+ "'")
+        sol_ayak = mycursor.fetchall()
+        mycursor2.execute("SELECT * FROM users2 WHERE atanan_ref LIKE '"+str(session['atanan_ref'])+'2'+"%"+ "'")
+        sag_ayak=mycursor2.fetchall()
+    except Exception as e:
+        print(e)
     try:
         session['ekipsayisi'] = int(len(sol_ayak))+int(len(sag_ayak))
+
+        print("SOL AYAK",len(sol_ayak))
+
+        session['sol_ayak']=len(sol_ayak)
+        session['sag_ayak']=len(sag_ayak)
+        print("SAG AYAK",len(sag_ayak))
         myresult1 = mycursor.fetchall()
         myresult2 = mycursor2.fetchall()
+        mycursor.close()
+        mycursor2.close()
         # print(session['atanan_ref'])
         print('sol_ayak+++++++++++++++++++++++++++++++++++++++++++++')
         print((myresult1))
@@ -88,7 +113,8 @@ def eslesme():
         esle=min(sol_ayak_toplam_para,sag_ayak_toplam_para)
         print((esle))
         session['puan']=session['puan']+(esle/10)
-    except:
+    except Exception as e :
+        print(e)
         session['ekipsayisi']=session['atanan_ref']
         session['puan']=session['puan']
    
@@ -127,6 +153,7 @@ def upload_file():
     ust_referans = []
     atanan_referans = []
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button") == "value":
             # print("girdi")
             mycursor = mydb.cursor(dictionary=True)
@@ -252,7 +279,7 @@ def index():
 @app.route("/profile", methods=['GET', 'POST'])
 @login_required
 def profile():
-  
+    mydb=conne()
     twitter_kullanici_adi = session["username"]
 
     try:
@@ -329,6 +356,7 @@ def yonetim():
     cuzdan_array = []
     date_array= []
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button2") == "value_g":
             print("--")
             input_mail = request.form.get("mail_adresi_g")
@@ -510,6 +538,7 @@ def sosyalmedya():
     link_array = []
     date_array = []
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button3") == "value_2":
             print("burda")
             try:
@@ -619,6 +648,7 @@ def sosyalmedya():
 def fileupload():
 
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button1") == "value_g":
             try:
 
@@ -642,6 +672,7 @@ def raporlar():
     len_dataframe=""
     aylık_tahmin=""
     try:
+        mydb=conne()
         mycursor = mydb.cursor(dictionary=True)
         mycursor.execute("SELECT * FROM users2 WHERE atanan_ref LIKE '"+str(session['atanan_ref'])+"%"+ "'")
                 
@@ -665,6 +696,7 @@ def raporlar():
 @login_required
 def paraupload():
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button1") == "goruntule":
             try:
                 file_on = request.files['file_on']
@@ -692,6 +724,7 @@ def cekme():
     date_array = []
     value=[]
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button") == "goruntule":
             print("girdi")
             mycursor = mydb.cursor(buffered=True)
@@ -726,23 +759,30 @@ def cekme():
             #çekme isteklerini görebilceek yer yap
 
             #
-            try:
-                tarih=datetime.now()
-                
-                mycursor = mydb.cursor()
 
-                sql = "INSERT INTO cekme_istegi (mail,tutar,soguk_cuzdan,date,value) VALUES (%s, %s,%s, %s,%s)"
-                val = (str(session['mail']),str(tutar),str(cuzdan),str(tarih),0)
-                mycursor.execute(sql, val)
+            print(session['atanan_para'])
 
-                mydb.commit()
-                print(mycursor.rowcount, "record inserted.")
-                mycursor.close()
-                flash("Çekme İsteği Gönderimi Başarılı",'info')
-            except Exception as e:
-                print(e)
-                flash("Çekme İsteği Gönderimi Başarısız",'info')
 
+            if int(session['atanan_para'])>10:
+                try:
+                    tarih=datetime.now()
+                    
+                    mycursor = mydb.cursor()
+
+                    sql = "INSERT INTO cekme_istegi (mail,tutar,soguk_cuzdan,date,value) VALUES (%s, %s,%s, %s,%s)"
+                    val = (str(session['mail']),str(tutar),str(cuzdan),str(tarih),0)
+                    mycursor.execute(sql, val)
+
+                    mydb.commit()
+                    print(mycursor.rowcount, "record inserted.")
+                    mycursor.close()
+                    flash("Çekme İsteği Gönderimi Başarılı",'info')
+                except Exception as e:
+                    print(e)
+                    flash("Çekme İsteği Gönderimi Başarısız",'info')
+            else:
+
+                flash("Paket Almadan Çekme Gönderimi Yapamazsınız",'info')
     
 
     return render_template("cekme.html",date_array=date_array,tutar_array=tutar_array,cuzdanNO=cuzdanNO,value=value)
@@ -753,6 +793,7 @@ def forms():
     twitter_kullanici_adi = session["username"]
     result_mail = ""
     if request.method == 'POST':
+        mydb=conne()
 
         if request.form.get("button") == "value":
             name_suname = request.form.get("isim_soyisim")
@@ -764,40 +805,46 @@ def forms():
             subject = baslik
             body = name_suname+"n"+telefon+" "+konu+"\n"+mesaj
 
-            account = 'ali.gkky196@gmail.com'
-            password = 'Ali19671570'
-
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-
-            server.ehlo()
-
-            server.starttls()
-
-            server.login(account, password)
-            mail = MIMEText(body, 'html', 'utf-8')
-            mail['From'] = account
-            mail['Subject'] = subject
-            mail['To'] = ','.join(to)
-            mail = mail.as_string()
-
+            account = 'iamemreeyildiz@gmail.com'
+            password = '190714emre'
             try:
-                server.sendmail(account, to, mail)
-                result_mail = ('Mail gönderimi başarılı')
-                flash("Mail gönderimi başarılı",'info')
 
+
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+
+                server.ehlo()
+
+                server.starttls()
+
+                server.login(account, password)
+                mail = MIMEText(body, 'html', 'utf-8')
+                mail['From'] = account
+                mail['Subject'] = subject
+                mail['To'] = ','.join(to)
+                mail = mail.as_string()
+
+                try:
+                    server.sendmail(account, to, mail)
+                    result_mail = ('Mail gönderimi başarılı')
+                    flash("Mail gönderimi başarılı",'info')
+
+                except:
+                    result_mail = ('Mail gönderimi başarısız')
+                    flash("Mail gönderimi başarısız Whatsapp'dan ulaşabilirsin",'info')
             except:
-                result_mail = ('Mail gönderimi başarısız')
-                flash("Mail gönderimi başarısız",'info')
-
+                    result_mail = ('Mail gönderimi başarısız')
+                    flash("Mail gönderimi başarısız Whatsapp'dan ulaşabilirsin",'info')
     return render_template("forms.html", result_mail=result_mail, twitter_kullanici_adi=twitter_kullanici_adi)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
+        mydb=conne()
         toplam_para=0
         email = request.form.get("email")
         password = request.form.get("pass")
-        mycursor = mydb.cursor(buffered=True)
+        mycursor = mydb.cursor()
         mycursor.execute("select*from users2 where mail='" +
                          email+"' and password='"+password+"'")
         myresult = mycursor.fetchall()
@@ -819,30 +866,33 @@ def login():
 
 
             #############################################################################
-            mycursor = mydb.cursor(buffered=True, dictionary=True)
+            mycursor9 = mydb.cursor(buffered=True, dictionary=True)
             print(str(session['atanan_ref']))
             print("---------------")
             sql = "SELECT * FROM users2 WHERE ust_referans= '"+str(session['atanan_ref'])+"'"
             # sql = "SELECT * FROM users2 WHERE ust_referans= '"+str(session['atanan_ref']) + "'"
-            mycursor.execute(sql)
-            myresult = mycursor.fetchall()
+            mycursor9.execute(sql)
+            myresult = mycursor9.fetchall()
             # print("---------")
+            mycursor9.close()
             print(len(myresult))
             # print("---------")
             print(myresult)
             for i in range(len(myresult)):
-                
-                if str(myresult[i]['yatirilan_para'])[0]=="-":
+               
+                if i == 0:
+                    print("emreeeeeeeeeeeeee")
+                elif str(myresult[i]['yatirilan_para'])[0]=="-":
                     pass
                 else:
 
                     toplam_para=toplam_para+myresult[i]['yatirilan_para']
-                    print("---------")
+                    
 
 
-            print("---------")
+            
             print(toplam_para)
-            session['puan']=toplam_para*30/100
+            session['puan']=int(toplam_para)*30/100
             if len(myresult)>=14:
                 session['puan']=session['puan']+50
             eslesme()
@@ -850,13 +900,15 @@ def login():
             try:
                 mycursor = mydb.cursor(buffered=True)
                 # "SELECT * FROM users2 WHERE ust_referans= '"+str(session['atanan_ref'])+"'"
-                sql = "SELECT sum(tutar) FROM `cekme_istegi` WHERE mail='"+session['mail']+"' and value=1 "
+                sql = "SELECT sum(tutar) FROM `cekme_istegi` WHERE mail='"+str(session['mail'])+"' and value=1 "
                 # sql = "SELECT * FROM users2 WHERE ust_referans= '"+str(session['atanan_ref']) + "'"
                 mycursor.execute(sql)
                 myresult = mycursor.fetchall()
-                print(int(myresult[0][0]),"------------")
+                mycursor.close()
+                print("girdi mi girmedi mi")
                 session['puan']-=int(myresult[0][0])
             except Exception as e:
+               
                 print(e)
             try:
              
@@ -870,6 +922,7 @@ def login():
                 mydb.commit()
                 print(mycursor.rowcount, "record inserted.")
                 mycursor.close()
+                
             except Exception as e:
                 print(e)
 
@@ -887,6 +940,7 @@ def singup():
     kayit_durumu = ""
     new_ref=""
     if request.method == 'POST':
+        mydb=conne()
         if request.form.get("button") == "value":
             name_surname = request.form.get("name_surname")
             tc=0
@@ -914,6 +968,7 @@ def singup():
                     mycursor.execute(sql)
 
                     myresult = mycursor.fetchall()
+                    mycursor.close()
                     print(myresult)
                     print(len(myresult))
                     if (len(myresult)) ==1:
@@ -941,6 +996,7 @@ def singup():
                 mycursor.execute(sql)
 
                 myresult = mycursor.fetchall()
+                mycursor.close()
                 if (len(myresult))==1:
                     print("Bundan var")
                     kayit_durumu = "Böyle bir mail adresi mevcut !!"
